@@ -1,5 +1,6 @@
 class Menu
-  attr_accessor :file, :budget, :options, :items
+  attr_reader :file
+  attr_accessor :budget, :items
 
   def initialize options={}
     unless options[:file].nil?
@@ -13,11 +14,13 @@ class Menu
     self.get_items
   end
 
+  # Parses string amounts to integer represented amount in cents
   def to_cents amount
     amount = amount.gsub(/[^0-9.]/, "")
     (amount.to_f * 100).to_i
   end
 
+  # Reads file and returns hash of menu items and prices
   def get_items
     @items = {}
     lines = File.readlines(@file).map &:strip
@@ -28,6 +31,7 @@ class Menu
     @items
   end
 
+  # Returns an array of every possible menu item combination
   def options
     self.items
     itemsArr = @items.keys
@@ -38,6 +42,7 @@ class Menu
     @options
   end
 
+  # Returns a hash of menu item combinations with price sums
   def option_prices
     self.options
     @option_prices = {}
@@ -51,12 +56,14 @@ class Menu
     @option_prices
   end
 
+  # Returns an array of combinations equal to the budget
   def combos
     self.option_prices
     combinations = @option_prices.select{|k,v| v == to_cents(@budget)}.keys
     unless combinations.empty? then combinations else "No exact price matches" end
   end
 
+  # Retuns an array of combination within budget
   def affordable_combos
     self.option_prices
     combinations = @option_prices.select{|k,v| v <= to_cents(@budget)}.keys

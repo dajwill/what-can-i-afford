@@ -55,5 +55,3 @@ This application assumes menus will be in CSV format, with the first line accoun
   menu-item, price
   menu-item, price
 ```
-
-- https://github.com/bellycard/napa

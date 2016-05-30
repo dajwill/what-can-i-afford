@@ -2,35 +2,38 @@ require 'spec_helper'
 require "menu"
 
 describe Menu do
-  it "has a file" do
-    menu = Menu.new
+  let(:menu){Menu.new}
+  let(:menu2){Menu.new file: 'menu2.txt'}
+  it "has/accepts a file" do
     menu.file.should_not be_nil
 
-    #menu = Menu.new(file: 'Bobs_burgers.txt')
-    #menu.error.should
+    menu2.file.should eq 'menu2.txt'
   end
 
   it "has a budget" do
-    menu = Menu.new
     menu.budget.should_not be_nil
-    menu.budget.should be_an Integer
   end
 
-  xit "has menu items" do
-    menu = Menu.new
+  it "can update its budget" do
+    menu.budget.should eq '15.05'
+    menu.budget = '$4.50'
+    menu.budget.should eq '$4.50'
+  end
+
+  it "has menu items" do
     menu.items.should be_a Hash
   end
 
-  it "finds all possibilities" do
-    #SUBSETS - 1 (2^n - 1)
-    menu = Menu.new
-    menu.get_possibilities [1,2,3]
-    menu.possibilities.length.should == 7
+  it "it returns all purchasing options" do
+    menu.file.should eq "menu.txt"
+    menu.options.should be_an Array
+    menu.options.length.should be 63
   end
 
-  xit "it returns all purchasing options" do
-    menu = Menu.new
-    menu.options.should be_an Array
+  it "returns an array of combinations with exact price match" do
+    menu.combos.should eq "No exact price matches"
+    menu.items['Fish tacos'] = '$15.05'
+    menu.combos.first.should eq ['Fish tacos']
   end
 
 end

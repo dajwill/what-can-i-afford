@@ -1,26 +1,24 @@
 class Menu
-  attr_accessor :file, :budget, :possibilities, :items
+  attr_accessor :file, :budget, :options, :items
 
   def initialize options={}
-    @file = "menu.txt"
+    unless options[:file].nil?
+      unless File.file? options[:file]
+        abort("Invalid file")
+      end
+    end
+    @file = options[:file] || "menu.txt"
 
-    # Complicated way of storing budget as cents
-
-    #Get menu items
-
+    @budget = File.open(@file, &:readline).gsub(/[^0-9.]/, "")
+    self.get_items
   end
 
   def to_cents amount
+    amount = amount.gsub(/[^0-9.]/, "")
     (amount.to_f * 100).to_i
   end
 
-  def budget
-    @budget = File.open(@file, &:readline).gsub(/[^0-9.]/, "")
-    # @budget = (@budget.to_f * 100).to_i
-    to_cents @budget
-  end
-
-  def items
+  def get_items
     @items = {}
     lines = File.readlines(@file).map &:strip
     lines[1..-1].each do |line|
@@ -30,12 +28,38 @@ class Menu
     @items
   end
 
-  def get_possibilities items
-    @possibilities = []
-
+  def options
+    self.items
+    itemsArr = @items.keys
+    @options = []
     for i in 1..(items.length) do
-      @possibilities = @possibilities + items.combination(i).to_a
+      @options = @options + itemsArr.combination(i).to_a
     end
-    @possibilities
+    @options
+  end
+
+  def option_prices
+    self.options
+    @option_prices = {}
+    @options.each do |option|
+      price = 0
+      option.each do |item|
+        price += to_cents(@items[item])
+      end
+      @option_prices[option] = price
+    end
+    @option_prices
+  end
+
+  def combos
+    self.option_prices
+    combinations = @option_prices.select{|k,v| v == to_cents(@budget)}.keys
+    unless combinations.empty? then combinations else "No exact price matches" end
+  end
+
+  def affordable_combos
+    self.option_prices
+    combinations = @option_prices.select{|k,v| v <= to_cents(@budget)}.keys
+    unless combinations.empty? then combinations else "You can't afford anything..." end
   end
 end
